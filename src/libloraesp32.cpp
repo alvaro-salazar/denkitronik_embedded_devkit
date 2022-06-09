@@ -23,9 +23,9 @@ void setLoRa(int rst_ra, int nss, int irq_na, long freq){
     while (1);                        //Si no se pudo inicializar se detiene el programa en este bucle infinito
   }
   delay(200); //Retardo que espera la estabilizacion del modulo RA-02
-  Serial.println("Inicializando dispositivo .::Weareable EEG::.");
+  Serial.println("Inicializando dispositivo .::Weareable EKG::.");
   //Envio de un string de prueba (no es necesario)
-  LoRa.beginPacket();                //Inicializamos un paquete a enviar
-  LoRa.print(".::Weareable EEG::."); //Enviamos un string
-  LoRa.endPacket();    
+  //LoRa.beginPacket();                //Inicializamos un paquete a enviar
+  //LoRa.print(".::Weareable EEG::."); //Enviamos un string
+  //LoRa.endPacket();    
 }

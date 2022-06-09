@@ -33,7 +33,7 @@
 #define NSS     5  //NSS del RA-02 esta conectado a IO4
 #define IRQ_NA 13  //La salida IO0 del RA-02 usada para indicar que llego un dato, (no esta conectada en Weareable EEG v1.0 pero se asigna IO13 que esta libre()
 
-#define SAMPLING_FREQ 300 //En Hz, escoge la frecuencia de muestreo
+#define SAMPLING_FREQ 256 //En Hz, escoge la frecuencia de muestreo
 
 
 //Declaracion de las funciones a utilizar en este programa
@@ -78,7 +78,7 @@ const uint8_t * buf;
 void filtrar(){	
 
   /****ADC - Adquisicion de datos por el ADC1_7****/
-  int adc = local_adc1_read(7);   //Adquisicion de un dato analogo por el ADC1_7 (IO35) con resolucion de 12 bits
+  int adc=analogRead(35);// = local_adc1_read(7);   //Adquisicion de un dato analogo por el ADC1_7 (IO35) con resolucion de 12 bits
   static uint16_t index=0;
   /****FILTRADO - Implementacion del filtro digital****/
   //
@@ -104,12 +104,15 @@ void filtrar(){
   } */
 
   voltajeSalida = (uint8_t)(adc >> 4);   //El modulo DAC tiene resolucion de 8 bits, asi que el valor del ADC (de 12 bits) se rota a la derecha 4 bits (divide en 16)
-  if(index<(SIZE_BUF-1)) {index++; buffer[index]=voltajeSalida;} else {index=0x00; buffer[0]=voltajeSalida;}; //Generamos una señal diente de sierra
-
-
+  if(index<(SIZE_BUF-1)) {index++; /*buffer[index]=voltajeSalida;*/} else {index=0x00; /*buffer[0]=voltajeSalida;*/}; //Generamos una señal diente de sierra
+  
+  for(int i=1;i<SIZE_BUF;i++){
+    buffer[i-1]=buffer[i];
+  }
+  buffer[255]=(voltajeSalida+buffer[SIZE_BUF-1]+buffer[SIZE_BUF-2]+buffer[SIZE_BUF-3])>>2;
   //Sacar un valor de voltaje por el canal DAC1
-  dac_output_enable(DAC_CHANNEL_1);                  //Habilitamos el DAC canal 1
-  dac_output_voltage(DAC_CHANNEL_1, voltajeSalida);  //Sacamos el voltaje en el DAC canal 1
+  //dac_output_enable(DAC_CHANNEL_1);                  //Habilitamos el DAC canal 1
+  //dac_output_voltage(DAC_CHANNEL_1, voltajeSalida);  //Sacamos el voltaje en el DAC canal 1
   buf=buffer;
   if(index==(SIZE_BUF-1)){
       /****TRANSMISION - Transmision de datos por LoRa****/
@@ -154,5 +157,5 @@ void enTouch3Pulsado(){
  * Bucle infinito principal
  */
 void loop() {
-  delay(100);
+ vTaskDelay(100000);
 }

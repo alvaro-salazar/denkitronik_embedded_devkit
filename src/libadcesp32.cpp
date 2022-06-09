@@ -59,7 +59,8 @@ int IRAM_ATTR local_adc1_read(int channel) {
 void complexHandlerADC(void *param) {
 	while (true) {
 		// Duerme hasta que la ISR nos de algo para hacer, o por 1 segundo
-		ulTaskNotifyTake(pdFALSE, pdMS_TO_TICKS(1000));
+
+		ulTaskNotifyTake(pdFALSE, pdMS_TO_TICKS(100000));
 		task_adc_handler();
 	}
 }
@@ -99,7 +100,7 @@ void setADCCallbacks(void (*t1_handler)(void), int samplingFreq){
 void initAdc(uint32_t samplingFreq) {
 	uint32_t contador = 1000000 / samplingFreq; //Calculo del numero de cuentas
 	float realFreq=1/(float)contador;
-	xTaskCreatePinnedToCore(complexHandlerADC, "Handler Task", 8192, NULL, 1, &complexHandlerADCTask, 0);
+	xTaskCreatePinnedToCore(complexHandlerADC, "ADC Handler", 8192, NULL,  1, &complexHandlerADCTask, 0);
     while(!Serial);
 	Serial.println("Inicializacion del ADC " + String(contador/1000)+ " ms de interrupcion de timerADC, frecuencia de muestreo = "+String(realFreq*1000000)+"Hz");
 	// Adquiere un puntero al timer a usar
